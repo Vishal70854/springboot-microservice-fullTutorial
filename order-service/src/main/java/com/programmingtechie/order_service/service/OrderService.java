@@ -8,6 +8,7 @@ import com.programmingtechie.order_service.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor    // created constructor dependency injection for all final fields at application start
+@Transactional(readOnly = true) // transactional annotation used bcoz if all the execution of the method is okay, then only save the Inventory object in DB
 public class OrderService {
 
     private final OrderRepository orderRepository;
