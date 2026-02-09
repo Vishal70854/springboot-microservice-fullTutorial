@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final WebClient webClient;  // as mentioned @RequiredArgsConstructor this field will be injected as it is declared  final as well
+    private final WebClient.Builder webClient;  // as mentioned @RequiredArgsConstructor this field will be injected as it is declared  final as well
 
     @Transactional // <-- overrides readOnly=true // now we will be able to do write operation to db and save our data in db
     public void placeOrder(OrderRequest orderRequest) {
@@ -43,8 +43,8 @@ public class OrderService {
                 .collect(Collectors.toList());
 
         // Call Inventory Service, and place order if product is in stock
-        InventoryResponse[] inventoryResponseArray = webClient.get()
-                .uri("http://localhost:8082/api/inventory",
+        InventoryResponse[] inventoryResponseArray = webClient.build().get()
+                .uri("http://inventory-service/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("skuCode",skuCodes).build())
                 .retrieve() // this method will retrieve the response from inventory-service
                 .bodyToMono(InventoryResponse[].class) // we defined the type of reponse we will get
