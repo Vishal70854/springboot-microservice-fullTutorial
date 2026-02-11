@@ -26,7 +26,7 @@ public class OrderService {
     private final WebClient.Builder webClient;  // as mentioned @RequiredArgsConstructor this field will be injected as it is declared  final as well
 
     @Transactional // <-- overrides readOnly=true // now we will be able to do write operation to db and save our data in db
-    public void placeOrder(OrderRequest orderRequest) {
+    public String placeOrder(OrderRequest orderRequest) {
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
 
@@ -56,6 +56,7 @@ public class OrderService {
 
         if (allProductsInStock) {
             orderRepository.save(order);    // save order object to db
+            return "Order Placed Successfully!!";
         }else{
             throw new IllegalArgumentException("Product is not in stock, please try again later");
         }
