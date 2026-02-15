@@ -21,7 +21,7 @@ public class InventoryService {
     @Transactional(readOnly = true) // transactional annotation used bcoz if all the execution of the method is okay, then only save the Inventory object in DB
     public List<InventoryResponse> isInStock(List<String> skuCode) throws InterruptedException {
         log.info("Wait Started");
-        Thread.sleep(10000);
+//        Thread.sleep(10000);
         log.info("Wait Ended");
         return inventoryRepository.findBySkuCodeIn(skuCode).stream()
                 .map(inventory -> {

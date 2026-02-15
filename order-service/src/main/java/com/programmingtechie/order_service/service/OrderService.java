@@ -3,11 +3,12 @@ package com.programmingtechie.order_service.service;
 import com.programmingtechie.order_service.dto.InventoryResponse;
 import com.programmingtechie.order_service.dto.OrderLineItemsDto;
 import com.programmingtechie.order_service.dto.OrderRequest;
+import com.programmingtechie.order_service.event.OrderPlacedEvent;
 import com.programmingtechie.order_service.model.Order;
 import com.programmingtechie.order_service.model.OrderLineItems;
 import com.programmingtechie.order_service.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Or;
+import org.aspectj.weaver.ast.Or;import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,6 +25,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClient;  // as mentioned @RequiredArgsConstructor this field will be injected as it is declared  final as well
+    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;  // KafkaTemplate is used to send message to KafkaListeners with topic name as String and value to be sent as OrderPlacedEvent Object
 
     @Transactional // <-- overrides readOnly=true // now we will be able to do write operation to db and save our data in db
     public String placeOrder(OrderRequest orderRequest) {
@@ -56,6 +58,8 @@ public class OrderService {
 
         if (allProductsInStock) {
             orderRepository.save(order);    // save order object to db
+            // publish/send messages to kafka topic
+            kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber()));
             return "Order Placed Successfully!!";
         }else{
             throw new IllegalArgumentException("Product is not in stock, please try again later");
